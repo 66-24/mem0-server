@@ -28,7 +28,42 @@ pip install -e .
 
 ## Prerequisites
 
+### Nix Users
+
+This project uses `shell.nix` with `direnv` for development. The shell configuration provides `libstdc++.so.6` which NumPy requires.
+
+```bash
+# Install direnv if needed
+nix-env -iA nixpkgs.direnv
+
+# Allow the .envrc
+direnv allow
+
+# Or enter nix-shell directly
+nix-shell
+```
+
+**Note:** Devbox was attempted but did not work for this project's requirements.
+
+> [!WARNING]
+> Never set `LD_LIBRARY_PATH` globally (e.g., in `~/.bashrc`, `~/.profile`, or home-manager `sessionVariables`). This will break GDM and prevent login. The `shell.nix` approach scopes the variable to this project only.
+
 1. **Ollama** - Install and run the Ollama service with nomic-embed-text:
+
+   Using systemd:
+   ```bash
+   # Check if ollama service is running
+   systemctl status ollama
+
+   # Start ollama service
+   systemctl start ollama
+   systemctl enable ollama  # Start on boot
+
+   # Pull the embedding model
+   ollama pull nomic-embed-text
+   ```
+
+   Or run directly:
    ```bash
    ollama serve
    ollama pull nomic-embed-text
@@ -51,9 +86,23 @@ Or via MCP client configuration (e.g., in Claude Code):
 ```json
 {
   "mcpServers": {
-    "mem0-server": {
-      "command": "uv",
-      "args": ["run", "--directory", "/path/to/mem0-server", "python", "mcp_server.py"]
+    "mem0-local": {
+      "command": "/path/to/mem0-server/.venv/bin/python",
+      "args": [
+        "/path/to/mem0-server/mcp_server.py"
+      ],
+      "env": {
+        "MEM0_USER_ID": "local-user",
+        "MEM0_EMBEDDING_PROVIDER": "ollama",
+        "MEM0_EMBEDDING_MODEL": "nomic-embed-text",
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "MEM0_VECTOR_STORE": "chroma",
+        "CHROMA_DB_PATH": "/path/to/mem0-server/chroma_data"
+      },
+      "toolConfig": {
+        "add_memory": "auto",
+        "search_memories": "auto"
+      }
     }
   }
 }
@@ -115,3 +164,4 @@ This allows Claude to use both the `add_memory` and `search_memories` tools with
 - **Session-Persistent**: Memories survive context clears and session restarts
 
 
+  
