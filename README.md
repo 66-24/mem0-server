@@ -79,7 +79,7 @@ nix-shell
 ### Running the Server
 
 ```bash
-uv run --directory /home/cloudsparker1/mem0-server python mcp_server.py
+uv run --directory /path/to/mem0-server python mcp_server.py
 ```
 
 Or via MCP client configuration (e.g., in Claude Code):
@@ -108,14 +108,17 @@ Or via MCP client configuration (e.g., in Claude Code):
 }
 ```
 
+> [!NOTE]
+> Both `toolConfig.auto` (server-side, FastMCP-only) and `permissions.allow` (client-side, any MCP server) work for auto-approving tools. Use `permissions.allow` with `mcp__mem0-server__*` pattern as an alternative.
+
 ### Testing
 
 ```bash
 # Run the test script
-uv run --directory /home/cloudsparker1/mem0-server python test_mem0_mcp.py
+uv run --directory /path/to/mem0-server python test_mem0_mcp.py
 
 # Or test add_memory directly
-uv run --directory /home/cloudsparker1/mem0-server python -c "from mcp_server import add_memory; print(add_memory('The project password is Alpha-99'))"
+uv run --directory /path/to/mem0-server python -c "from mcp_server import add_memory; print(add_memory('The project password is Alpha-99'))"
 ```
 
 ## MCP Tools
